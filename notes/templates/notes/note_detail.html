@@ -1,0 +1,51 @@
+{% extends 'notes/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+
+            <article class="media content-section">
+                <div class="media-body">
+                    <div class="article-metadata">
+                        <img class="rounded-circle article-img" src="{{ note.author.profile.image.url }}">
+                        <a style="decoration:none">{{ note.author}}</a>
+                        {{ note.publish|date }}
+                    </div>
+                    <h2 class="article-title">{{ note.title }}</h2>
+                    <p class="article-content">{{ note.text }}</p>
+                </div>
+                <div>
+                    <a class="btn btn-secondary btn-sm mt-1 mt-1" href="{% url 'notes:share_note' note.id %}">Forward</a>
+                </div>
+            </article>
+
+    {% for comment in comments %}
+
+<article class="media content-section">
+    <img class="rounded-circle article-img" src="{{ comment.author.profile.image.url }}">
+    <div class="media-body">
+        <div class="article-metadata">
+            <a style="text-decoration:none" href="#">{{ comment.author }}</a>
+            <small class="text-muted">{{ comment.created|date:"d F, Y" }}</small>
+        </div>
+        <p class="article-content">{{comment.body}}</p>
+    </div>
+</article>
+
+
+{% endfor %}
+<article class="media content-section">
+        <form method="post">
+          {% csrf_token %}
+          <fieldset class="form-group">
+              <legend class="border-bottom mb-4">Comment</legend>
+            {{ c_form|crispy }}
+          </fieldset>
+            <div class="form-group">
+                <button  class="btn btn-outline-info" type="submit">Comment</button>
+            </div>
+        </form>
+
+    </article>
+
+{% endblock content %}

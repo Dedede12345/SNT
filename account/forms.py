@@ -22,7 +22,7 @@ class UserUpdateForm(forms.ModelForm):
     email = forms.EmailField()
 
     class Meta:
-        fields = ['username', 'email']
+        fields = ['username', 'email'] # Description
         model = User
 
 class ProfileUpdateForm(forms.ModelForm):

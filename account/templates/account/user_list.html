@@ -1,0 +1,14 @@
+{% extends 'notes/base.html' %}
+{% block content %}
+{% for user in users %}
+
+<article class="media content-section">
+    <img class="rounded-circle article-img" src="{{ user.profile.image.url }}">
+    <h2><a  class="article-title" style="text-decoration:none" href="{% url 'detail_profile' user.id %}">{{ user.username }}</a></h2>
+    <small class="text-muted">{{ note.created|date:"d F, Y" }}</small>
+</article>
+
+
+{% endfor %}
+
+{% endblock content %}

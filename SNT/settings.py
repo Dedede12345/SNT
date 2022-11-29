@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/4.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
-
+from django.urls import reverse_lazy
 from pathlib import Path
 import os
 
@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_extensions',
+    'easy_thumbnails'
 
 ]
 
@@ -122,6 +124,10 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+ABSOLUTE_URL_OVERRIDES = {
+    'auth.user': lambda x: reverse_lazy('reverse_lazy', args=[x.profile.id])
+}
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
@@ -130,13 +136,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-
 LOGIN_REDIRECT_URL = 'home'
 LOGIN_URL = 'login'
 LOGIN_OUT = 'logout'
 
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'gdenisov606@gmail.com'
-EMAIL_HOST_PASSWORD = 'hputrotimvucymyt'# os.environ['EMAIL_HOST_PASSWORD   ']
+EMAIL_HOST_PASSWORD = 'hputrotimvucymyt'# os.environ['EMAIL_HOST_PASSWORD']
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True

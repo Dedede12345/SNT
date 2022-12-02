@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from PIL import Image
 from django.contrib.auth import get_user_model
+
 class Profile(models.Model):
 
     class Status(models.TextChoices):
@@ -52,6 +53,8 @@ class Contacts(models.Model):
 
     def __str__(self):
         return f"{self.user_from}_follows_{self.user_to}"
+
+
 
 user_model = get_user_model()
 user_model.add_to_class('following',

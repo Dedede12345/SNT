@@ -28,6 +28,26 @@
       </div>
     </div>
 
+{% for note in user.notes.al %}
+
+<article class="media content-section">
+    <img class="rounded-circle article-img" src="{{ note.author.profile.image.url }}">
+    <small class="text-muted">{{ note.created|date:"d F, Y" }}</small>
+
+    <div class="media-body">
+        <div class="article-metadata">
+            <a style="text-decoration:none" href="{% url 'detail_profile' note.author.profile.id %}">{{ note.author }}</a>
+            <small class="text-muted">{{ note.publish }}</small>
+        </div>
+        <H2><a style="text-decoration:none" class="article-title" href="{% url 'notes:note-detail' note.id %}">{{note.title}}</a></H2>
+        <p class="article-content">{{note.text}}</p>
+    </div>
+</article>
+
+
+{% endfor %}
+
+
 {% endblock %}
 
 {% block domready %}

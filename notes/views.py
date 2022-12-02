@@ -6,13 +6,30 @@ from django.contrib import messages
 from django.shortcuts import get_object_or_404
 from django.core.mail import send_mail
 from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from actions.utils import create_action
+from actions.models import Action
 import requests
-
+from django.core.paginator import Paginator
 # Create your views here.
-def home(requset):
-    notes = Note.published.all()
-    return render(requset, 'notes/home.html', context={
-        'notes': notes
+def home(request):
+    actions = Action.objects.all()
+    following_ids = request.user.following.values_list('id', flat=True)
+
+
+    if following_ids:
+        actions = actions.filter(user_id__in=following_ids)
+    actions = actions[:10]
+    notes = Note.objects.all()
+    paginator = Paginator(notes, 5)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'notes/home.html', context={
+        'notes': notes,
+        'actions': actions,
+        'page_obj': page_obj,
+        'section': 'actions'
     })
 
 class PostListView(generic.ListView):
@@ -38,6 +55,7 @@ def note_detail(request, pk):
             comment.note = note
             comment.author = request.user
             comment.save()
+            create_action(request.user, 'commented note', comment)
             return redirect(note.get_absolute_url())
 
     else:
@@ -65,6 +83,7 @@ def note_created(request):
             new_note = form.save(commit=False)
             new_note.author = request.user
             new_note.save()
+            create_action(request.user, 'created note', new_note)
             messages.success(request, "Note added successfully")
             return redirect(new_note.get_absolute_url())#redirect(f"/notes/detail/{new_note.pk}")
     else:
@@ -106,5 +125,34 @@ def post_comment(request, note_id):
         comment = form.save(commit=False)
         comment.note = note
         comment.save()
+        # create_action(request.user, 'created note', new_note)
         messages.success(request, "Comment published")
         return redirect(note.get_absolute_url())
+
+
+@require_POST
+@login_required
+def note_like(request):
+    note_id = request.POST.get('id')
+    action = request.POST.get('action')
+    print(note_id, action)
+    if note_id and action:
+        try:
+            note = Note.objects.get(id=note_id)
+            if action == 'like':
+                note.users_like.add(request.user)
+                create_action(request.user, 'likes', note)
+
+            else:
+                note.users_like.remove(request.user)
+            return JsonResponse({'status': 'ok'})
+        except Note.DoesNotExist:
+            pass
+
+    return JsonResponse({'status': 'error'})
+
+def testing(request):
+    actions = Action.objects.all()
+    return render(request, 'notes/testing.html', context={
+        'actions': actions
+    })

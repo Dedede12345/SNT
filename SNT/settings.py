@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 # Application definition
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 INSTALLED_APPS = [
+    'actions.apps.ActionsConfig',
     'account.apps.AccountConfig',
     'notes.apps.NotesConfig',
     'crispy_forms',
@@ -125,7 +126,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 ABSOLUTE_URL_OVERRIDES = {
-    'auth.user': lambda x: reverse_lazy('reverse_lazy', args=[x.profile.id])
+    'auth.user': lambda x: reverse_lazy('detail_profile', args=[x.profile.id])
 }
 
 # Default primary key field type

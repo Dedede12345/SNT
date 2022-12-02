@@ -11,6 +11,8 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from .models import Contacts
+from django.http import JsonResponse
+from actions.utils import create_action
 
 
 # Create your views here.
@@ -49,7 +51,9 @@ def register(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
-            form.save()
+            user = form.save(commit=False)
+            user.save()
+            create_action(user, 'has created account')
             messages.success(request, "Successfully registered")
             return redirect('login')
         else:
@@ -90,11 +94,10 @@ class ProfileDetailView(generic.DetailView):
 
 @login_required
 def profile_detail_view(request, id):
-    if request.method == 'GET':
-        profile = Profile.objects.get(id=id)
+        user = User.objects.get(id=id)
         return render(request, 'account/profile-detail.html',
                       {
-                          'profile': profile,
+                          'user': user,
                       })
 
 
@@ -127,14 +130,11 @@ def user_follow(request):
                     user_from=request.user,
                     user_to=user
                 )
-                # create_action(request.user, 'is following', user)
+                create_action(request.user, 'is following', user)
             else:
                 Contacts.objects.filter(user_from=request.user,
                                        user_to=user).delete()
             return JsonResponse({'status': 'ok'})
         except User.DoesNotExist:
             return JsonResponse({'status': 'error'})
-        finally:
-            print('Resulted in any kind of shit')
-    print(f'Resulted in any kind of shit')
     return JsonResponse({'status': "error"})

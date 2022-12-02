@@ -4,7 +4,7 @@ from . import views
 
 app_name = 'notes'
 urlpatterns = [
-    path('home/', views.PostListView.as_view(),
+    path('home/', views.home,
          name='home'),
     path('detail/<int:pk>', views.note_detail, #views.NoteDetailView.as_view()
          name='note-detail'),
@@ -12,6 +12,9 @@ urlpatterns = [
          name='note-create'),
     path('<int:note_id>/share', views.note_share,
          name='share_note'),
+    path('like/', views.note_like,
+         name='like'),
+    path('testing/', views.testing, name='testing')
     # path('<int:note_id>/create', views.post_comment,
     #      name='note_comment')
 ]

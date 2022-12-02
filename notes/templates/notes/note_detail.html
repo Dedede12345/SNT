@@ -11,8 +11,20 @@
                         <a style="decoration:none">{{ note.author}}</a>
                         {{ note.publish|date }}
                     </div>
+                    {% with total_likes=note.users_like.count users_like=note.users_like.all %}
                     <h2 class="article-title">{{ note.title }}</h2>
                     <p class="article-content">{{ note.text }}</p>
+                    <a data-action="{% if request.user in user_likes %}un{% endif %}like"
+                       data-id="{{ note.id }}" href="#" style="text-decoration:none"
+                        id="like_btn"
+                    >
+                        {% if request.user not in users_like %}
+                            Like
+                        {% else %}
+                            Unlike
+                        {% endif %}
+                    </a>
+                    <p><span id="counter">{{ total_likes }}</span> like{{ total_likes|pluralize }}</p>
                 </div>
                 <div>
                     <a class="btn btn-secondary btn-sm mt-1 mt-1" href="{% url 'notes:share_note' note.id %}">Forward</a>
@@ -47,5 +59,46 @@
         </form>
 
     </article>
-
+{% endwith %}
 {% endblock content %}
+
+{% block domready %}
+const url = '{% url "notes:like" %}';
+var options = {
+method: 'POST',
+    headers: {'X-CSRFToken': csrftoken},
+    mode: 'same-origin'
+  }
+
+  document.querySelector('#like_btn')
+          .addEventListener('click', function(e){
+    e.preventDefault();
+    var likeButton = this;
+
+    // add request body
+    var formData = new FormData();
+    formData.append('id', likeButton.dataset.id);
+    formData.append('action', likeButton.dataset.action);
+    options['body'] = formData;
+
+    // send HTTP request
+    fetch(url, options)
+    .then(response => response.json())
+    .then(data => {
+      if (data['status'] === 'ok')
+      {
+        var previousAction = likeButton.dataset.action;
+
+        // toggle button text and data-action
+        var action = previousAction === 'like' ? 'unlike' : 'like';
+        likeButton.dataset.action = action;
+        likeButton.innerHTML = action;
+
+        // update follower count
+        var likeCount = document.querySelector('#counter');
+        var totalLikes = parseInt(likeCount.innerHTML);
+        likeCount.innerHTML = previousAction === 'like' ? totalLikes + 1 : totalLikes - 1;
+      }
+    })
+  });
+{% endblock %}

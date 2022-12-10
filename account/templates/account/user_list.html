@@ -1,6 +1,6 @@
 {% extends 'notes/base.html' %}
 {% block content %}
-{% for user in users %}
+{% for user in page_obj %}
 
 <article class="media content-section">
     <img class="rounded-circle article-img" src="{{ user.profile.image.url }}">
@@ -10,5 +10,28 @@
 
 
 {% endfor %}
+
+ {% if is_paginated %}
+            {% if page_obj.has_previous %}
+            {% with pr=page_obj.number|add:'-1'  %}
+                <a class="btn btn-outline-info mb-4" href="?page=1" type="text-decoration:none">First</a>
+                <a class="btn btn-outline-info mb-4" href="?page={{pr}}" type="text-decoration:none">Previous</a>
+        {% endwith %}
+        {% endif %}
+        {% endif %}
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+                <a class="btn btn-info mb-4" href="?page={{ num }}" type="text-decoration:none">{{ num }}</a>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a class="btn btn-outline-info mb-4" href="?page={{ num }}" type="text-decoration:none">{{ num }}</a>
+            {% endif %}
+
+        {% endfor %}
+        {% if page_obj.has_next %}
+                <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.next_page_number }}" type="text-decoration:none">Next</a>
+                <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.paginator.num_pages }}" type="text-decoration:none">Last</a>
+
+
+        {% endif %}
 
 {% endblock content %}

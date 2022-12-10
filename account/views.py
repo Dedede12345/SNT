@@ -13,6 +13,7 @@ from django.views.decorators.http import require_POST
 from .models import Contacts
 from django.http import JsonResponse
 from actions.utils import create_action
+from django.core.paginator import Paginator
 
 
 # Create your views here.
@@ -104,9 +105,13 @@ def profile_detail_view(request, id):
 @login_required
 def user_list(request):
     users = User.objects.filter(is_active=True)
+    paginator = Paginator(users, 5)
+    page_number = request.GET.get('page')
+    page_object = paginator.get_page(page_number)
     return render(request, 'account/user_list.html',
                   {
-                      'users': users
+                      'users': users,
+                      'page_obj': page_object
                   })
 @login_required
 def user_detail(request, username):

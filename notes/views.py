@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, reverse
 from django.views import generic
 from .models import Note, Comment
-from .forms import NoteCreateForm, EmailNoteForm, CommentCreateForm
+from .forms import NoteCreateForm, EmailNoteForm, SearchForm, CommentCreateForm
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
 from django.core.mail import send_mail
@@ -12,6 +12,8 @@ from actions.utils import create_action
 from actions.models import Action
 import requests
 from django.core.paginator import Paginator
+from django.contrib.postgres.search import SearchVector
+
 # Create your views here.
 def home(request):
     actions = Action.objects.all()
@@ -20,7 +22,7 @@ def home(request):
 
     if following_ids:
         actions = actions.filter(user_id__in=following_ids)
-    actions = actions[:10]
+    actions = actions[:5]
     notes = Note.objects.all()
     paginator = Paginator(notes, 5)
     page_number = request.GET.get('page')
@@ -112,6 +114,9 @@ def note_share(request, note_id):
             sent = True
             messages.success(request, 'Mail sent successfully')
             return redirect('notes:home')
+        else:
+            message = messages.error(request, "Somethig went wrong")
+            return render(request, 'notes/share.html', {'note': note, 'form': form, 'sent': sent})
 
     else:
         form = EmailNoteForm()
@@ -156,3 +161,23 @@ def testing(request):
     return render(request, 'notes/testing.html', context={
         'actions': actions
     })
+
+def note_search(request):
+    form = SearchForm()
+    query = None
+    results = []
+
+    if 'query' in request.GET:
+        form = SearchForm(request.GET)
+        if form.is_valid():
+            query = form.cleaned_data['query']
+            results = Note.published.annotate(
+                search=SearchVector('title', 'body')
+            ).filter(search=query)
+
+    return render(request, 'notes/search.html',
+                      {
+                          'form': form,
+                          'query': query,
+                          'results': results
+                      })

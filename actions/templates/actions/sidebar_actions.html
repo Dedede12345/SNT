@@ -1,7 +1,7 @@
 {% load thumbnail %}
 
 {% with user=action.user profile=action.user.profile %}
-<div >
+<article class="media content-section">
   <div >
     {% if profile.image %}
       {% thumbnail user.profile.image "80x80" crop="100%" as im %}
@@ -36,5 +36,6 @@
       {% endif %}
     </p>
   </div>
-</div>
+</article>
 {% endwith %}
+

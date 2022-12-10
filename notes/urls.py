@@ -14,7 +14,9 @@ urlpatterns = [
          name='share_note'),
     path('like/', views.note_like,
          name='like'),
-    path('testing/', views.testing, name='testing')
+    path('testing/', views.testing, name='testing'),
+    path('search/', views.note_search,
+         name='note_search')
     # path('<int:note_id>/create', views.post_comment,
     #      name='note_comment')
 ]

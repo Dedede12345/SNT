@@ -1,6 +1,6 @@
 {% extends 'notes/base.html' %}
 {% block content %}
-{% for note in notes %}
+{% for note in page_obj %}
 
 <article class="media content-section">
     <img class="rounded-circle article-img" src="{{ note.author.profile.image.url }}">
